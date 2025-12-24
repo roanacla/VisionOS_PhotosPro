@@ -9,8 +9,7 @@ class NetworkService: NetworkServiceProtocol {
         self.decoder = decoder
     }
     
-    //FIXME: Silence warning: Non-Sendable parameter type 'T.Type' cannot be sent from caller of protocol requirement 'fetch(from:objectsOfType:)' into main actor-isolated implementation; this is an error in the Swift 6 language mode
-    func fetch<T: Decodable & Sendable>(from request: URLRequest, objectsOfType: T.Type) async throws -> T {
+    func fetch<T: Decodable & Sendable>(from request: URLRequest) async throws -> T {
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
