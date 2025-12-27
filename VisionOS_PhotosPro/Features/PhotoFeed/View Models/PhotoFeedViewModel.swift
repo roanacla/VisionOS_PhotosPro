@@ -7,6 +7,9 @@ class PhotoFeedViewModel {
     var errorMessage: String?
     var isLoading = false
     var photos: [Photo] = []
+    private var page = 1
+    private var isFetching = false
+    private let maxPages = 10 //FIXME: Add this in a xcconfig file
     
     init(networkService: NetworkServiceProtocol, errorMessage: String? = nil, isLoading: Bool = false) {
         self.networkService = networkService
@@ -15,11 +18,17 @@ class PhotoFeedViewModel {
     }
     
     func fetchPhotos() async {
+        guard isFetching == false && page <= maxPages else { return }
+        isFetching = true
         do {
-            // Fixme: replace with valid URL from unsplash
-            guard let url = URL(string: APIEndpoint.photos.rawValue) else { throw NetworkError.invalidURL }
-            let urlRequest = URLRequest(url: url)
-            photos = try await networkService.fetch(from: urlRequest)
+            let factory = UnsplashRequestFactory()
+            guard let photoRequest = factory.makeRequest(endpoint: .photos(page: page)) else {
+                throw NetworkError.invalidURL
+            }
+            let newPhotos: [Photo] = try await networkService.fetch(from: photoRequest)
+            photos.append(contentsOf: newPhotos)
+            isFetching = false
+            page += 1
         } catch let error as NetworkError {
             switch error {
             case .invalidURL:
@@ -40,8 +49,10 @@ class PhotoFeedViewModel {
                     errorMessage = String(localized: "Unknown error")
                 }
             }
+            isFetching = false
         } catch {
             errorMessage = String(localized: "Unknown error")
+            isFetching = false
         }
     }
     

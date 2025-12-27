@@ -27,4 +27,19 @@ class NetworkService: NetworkServiceProtocol {
             throw NetworkError.decodingError
         }
     }
+    
+    func fetchImage(from url: URL) async throws -> Data {
+        let (data, response) = try await session.data(from: url)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.invalidResponse
+        }
+        
+        let status = httpResponse.statusCode
+        
+        guard (200...299).contains(status) else {
+            throw NetworkError.serverError(status)
+        }
+        
+        return data
+    }
 }

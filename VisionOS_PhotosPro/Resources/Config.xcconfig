@@ -1,0 +1,10 @@
+//
+//  Config.xcconfig
+//  VisionOS_PhotosPro
+//
+//  Created by Roger Navarro Claros on 12/26/25.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+UNSPLASH_ACCESS_KEY = EnmG3VrtwK8bUrOX3khUjYFsLpXVMzMmr-iUnnB_Vc8

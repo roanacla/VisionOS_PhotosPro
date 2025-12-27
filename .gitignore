@@ -1,1 +1,2 @@
 .DS_Store, *.generated.swift, xcuserdata/, DerivedData/.
+Config.xcconfig
