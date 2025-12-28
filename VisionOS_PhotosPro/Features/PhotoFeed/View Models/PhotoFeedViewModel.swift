@@ -3,13 +3,21 @@ import Foundation
 @MainActor
 @Observable
 class PhotoFeedViewModel {
-    let networkService: NetworkServiceProtocol
+    @ObservationIgnored let networkService: NetworkServiceProtocol
     var errorMessage: String?
     var isLoading = false
     var photos: [Photo] = []
     private var page = 1
     private var isFetching = false
     private let maxPages = 10 //FIXME: Add this in a xcconfig file
+    var searchText: String = "" {
+        didSet {
+            guard searchText != oldValue else { return }
+            page = 1
+            photos = []
+        }
+    }
+    private var endPoint: Endpoint = .photos(page: 1)
     
     init(networkService: NetworkServiceProtocol, errorMessage: String? = nil, isLoading: Bool = false) {
         self.networkService = networkService
@@ -17,16 +25,43 @@ class PhotoFeedViewModel {
         self.isLoading = isLoading
     }
     
-    func fetchPhotos() async {
+    func searchPhotosWithDebouncing() {
+        Task {
+            do {
+                try await Task.sleep(for: .seconds(0.5))
+                loadPhotos()
+            } catch { }
+        }
+    }
+    
+    func loadPhotos() {
+        Task {
+            if searchText.isEmpty {
+                endPoint = Endpoint.photos(page: page)
+                await fetchPhotos()
+            } else {
+                endPoint = Endpoint.search(query: searchText, page: page)
+                await fetchPhotos()
+            }
+        }
+    }
+    
+    private func fetchPhotos() async {
         guard isFetching == false && page <= maxPages else { return }
         isFetching = true
         do {
             let factory = UnsplashRequestFactory()
-            guard let photoRequest = factory.makeRequest(endpoint: .photos(page: page)) else {
+            guard let photoRequest = factory.makeRequest(endpoint: endPoint) else {
                 throw NetworkError.invalidURL
             }
-            let newPhotos: [Photo] = try await networkService.fetch(from: photoRequest)
-            photos.append(contentsOf: newPhotos)
+            switch endPoint {
+            case .photos:
+                let newPhotos: [Photo] = try await networkService.fetch(from: photoRequest)
+                photos.append(contentsOf: newPhotos)
+            case .search:
+                let searchResult: Search = try await networkService.fetch(from: photoRequest)
+                photos.append(contentsOf: searchResult.results)
+            }
             isFetching = false
             page += 1
         } catch let error as NetworkError {

@@ -4,28 +4,32 @@ import UIKit
 @MainActor
 @Observable
 class RemoteImageViewModel {
-    private let imageURL: URL?
-    private let networkService: NetworkServiceProtocol
+    @ObservationIgnored private let imageURL: String
+    @ObservationIgnored private let networkService: NetworkServiceProtocol
+    @ObservationIgnored private let imageLoaderService: ImageLoaderServiceProtocol
     
     var imageData: Data?
     
-    init(url: URL?, networkService: NetworkServiceProtocol) {
-        self.imageURL = url
+    init(imageURL: String, networkService: NetworkServiceProtocol, imageLoaderService: ImageLoaderServiceProtocol) {
+        self.imageURL = imageURL
         self.networkService = networkService
+        self.imageLoaderService = imageLoaderService
     }
     
     func fetchImage() async {
-        guard let imageURL else {
-            print("No image URL")
+        guard let imageURL = URL(string: imageURL) else {
+            print("Invalid image URL")
             return
         }
-        if let cachedImage = await ImageLoaderService.shared.retrieve(forKey: imageURL.absoluteString) {
+        // Search in cache
+        if let cachedImage = await imageLoaderService.retrieve(forKey: imageURL.absoluteString) {
             imageData = cachedImage
-        } else { // make network request
+        // Make network request
+        } else {
             do {
                 let imageData: Data = try await networkService.fetchImage(from: imageURL)
                 self.imageData = imageData
-                await ImageLoaderService.shared.store(data: imageData, forKey: imageURL.absoluteString)
+                await imageLoaderService.store(data: imageData, forKey: imageURL.absoluteString)
             } catch {
                 print("Error fetching image")
             }

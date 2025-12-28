@@ -4,7 +4,7 @@ import SwiftUI
 struct VisionOS_PhotosProApp: App {
     var body: some Scene {
         WindowGroup {
-            PhotoFeedView(viewModel: PhotoFeedViewModel(networkService: NetworkService()))
+            ContentView(viewModel: .init(networkService: NetworkService()))
         }
     }
 }

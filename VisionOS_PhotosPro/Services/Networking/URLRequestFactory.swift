@@ -12,7 +12,7 @@ protocol URLRequestFactory {
 /// This decouples the factory from raw strings.
 enum Endpoint {
     case photos(page: Int)
-    case search(query: String)
+    case search(query: String, page: Int)
 }
 
 // MARK: - Concrete Factory
@@ -45,9 +45,13 @@ struct UnsplashRequestFactory: URLRequestFactory {
             path = "/photos"
             queryItems = [URLQueryItem(name: "page", value: String(page))]
             
-        case .search(let query):
+        // FIX: Handle page parameter in search case
+        case .search(let query, let page):
             path = "/search/photos"
-            queryItems = [URLQueryItem(name: "query", value: query)]
+            queryItems = [
+                URLQueryItem(name: "query", value: query),
+                URLQueryItem(name: "page", value: String(page))
+            ]
         }
         
         // 2. Construct the URLComponents

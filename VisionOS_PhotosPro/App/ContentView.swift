@@ -1,17 +1,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var viewModel: ContentViewModel
+        
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            PhotoFeedView(viewModel: .init(networkService: viewModel.networkService))
         }
-        .padding()
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(viewModel: .init(networkService: MockNetworkService()))
 }
