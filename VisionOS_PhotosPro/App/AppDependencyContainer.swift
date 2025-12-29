@@ -11,8 +11,12 @@ final class AppDependencyContainer {
         self.analyticsService = analyticsService
     }
     
+    func makeContentViewModel() -> ContentViewModel {
+        ContentViewModel(analyticalService: analyticsService, networkService: networkService)
+    }
+    
     func makePhotoFeedViewModel() -> PhotoFeedViewModel {
-        PhotoFeedViewModel(networkService: networkService)
+        PhotoFeedViewModel(analyticsService: analyticsService, networkService: networkService)
     }
     
     func makeRemoteImageViewModel(imageURL: String) -> RemoteImageViewModel {

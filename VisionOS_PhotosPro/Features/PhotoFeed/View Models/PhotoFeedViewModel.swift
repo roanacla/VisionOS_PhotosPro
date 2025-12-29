@@ -4,6 +4,7 @@ import Foundation
 @Observable
 class PhotoFeedViewModel {
     @ObservationIgnored let networkService: NetworkServiceProtocol
+    @ObservationIgnored let analyticsService: AnalyticsServiceProtocol
     var errorMessage: String?
     var isLoading = false
     var photos: [Photo] = []
@@ -13,8 +14,10 @@ class PhotoFeedViewModel {
     var searchText: String = ""
     private var endPoint: Endpoint = .photos(page: 1)
     
-    init(networkService: NetworkServiceProtocol, errorMessage: String? = nil, isLoading: Bool = false) {
+    init(analyticsService: AnalyticsServiceProtocol, networkService: NetworkServiceProtocol, errorMessage: String? = nil, isLoading: Bool = false) {
+        
         self.networkService = networkService
+        self.analyticsService = analyticsService
         self.errorMessage = errorMessage
         self.isLoading = isLoading
     }
@@ -22,6 +25,7 @@ class PhotoFeedViewModel {
     func searchPhotosWithDebouncing() async {
         do {
             try await Task.sleep(for: .seconds(0.5))
+            analyticsService.log(event: "Search \(searchText)")
             page = 1
             photos = []
             loadPhotos()

@@ -5,11 +5,12 @@ struct ContentView: View {
         
     var body: some View {
         NavigationStack {
-            PhotoFeedView(viewModel: .init(networkService: viewModel.networkService))
+            // I feel like I need to use the dependency container here
+            PhotoFeedView(viewModel: .init(analyticsService: viewModel.analyticsService, networkService: viewModel.networkService))
         }
     }
 }
 
 #Preview {
-    ContentView(viewModel: .init(networkService: MockNetworkService()))
+    ContentView(viewModel: .init(analyticalService: AnalyticsService(), networkService: MockNetworkService()))
 }

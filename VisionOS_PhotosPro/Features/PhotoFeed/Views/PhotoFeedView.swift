@@ -33,5 +33,5 @@ struct PhotoFeedView: View {
 
 #Preview {
     let networkService = MockNetworkService()
-    PhotoFeedView(viewModel: .init(networkService: networkService))
+    PhotoFeedView(viewModel: .init(analyticsService: AnalyticsService(), networkService: networkService))
 }
