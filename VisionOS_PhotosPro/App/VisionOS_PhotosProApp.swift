@@ -5,7 +5,7 @@ struct VisionOS_PhotosProApp: App {
     let container = AppDependencyContainer()
     var body: some Scene {
         WindowGroup {
-            ContentView(viewModel: container.makeContentViewModel())
+            PhotoFeedView(viewModel: container.makePhotoFeedViewModel())
         }
     }
 }

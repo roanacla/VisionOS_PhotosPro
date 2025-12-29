@@ -13,13 +13,14 @@ class PhotoFeedViewModel {
     private let maxPages = 5 //FIXME: Add this in a xcconfig file
     var searchText: String = ""
     private var endPoint: Endpoint = .photos(page: 1)
+    var makeRemoteImageViewModel: (String) -> RemoteImageViewModel
     
-    init(analyticsService: AnalyticsServiceProtocol, networkService: NetworkServiceProtocol, errorMessage: String? = nil, isLoading: Bool = false) {
-        
+    init(analyticsService: AnalyticsServiceProtocol, networkService: NetworkServiceProtocol, errorMessage: String? = nil, isLoading: Bool = false, makeRemoteImageViewModel: @escaping (String) -> RemoteImageViewModel) {
         self.networkService = networkService
         self.analyticsService = analyticsService
         self.errorMessage = errorMessage
         self.isLoading = isLoading
+        self.makeRemoteImageViewModel = makeRemoteImageViewModel
     }
     
     func searchPhotosWithDebouncing() async {
