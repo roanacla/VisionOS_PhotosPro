@@ -9,14 +9,8 @@ class PhotoFeedViewModel {
     var photos: [Photo] = []
     private var page = 1
     private var isFetching = false
-    private let maxPages = 10 //FIXME: Add this in a xcconfig file
-    var searchText: String = "" {
-        didSet {
-            guard searchText != oldValue else { return }
-            page = 1
-            photos = []
-        }
-    }
+    private let maxPages = 5 //FIXME: Add this in a xcconfig file
+    var searchText: String = ""
     private var endPoint: Endpoint = .photos(page: 1)
     
     init(networkService: NetworkServiceProtocol, errorMessage: String? = nil, isLoading: Bool = false) {
@@ -25,13 +19,13 @@ class PhotoFeedViewModel {
         self.isLoading = isLoading
     }
     
-    func searchPhotosWithDebouncing() {
-        Task {
-            do {
-                try await Task.sleep(for: .seconds(0.5))
-                loadPhotos()
-            } catch { }
-        }
+    func searchPhotosWithDebouncing() async {
+        do {
+            try await Task.sleep(for: .seconds(0.5))
+            page = 1
+            photos = []
+            loadPhotos()
+        } catch { }
     }
     
     func loadPhotos() {

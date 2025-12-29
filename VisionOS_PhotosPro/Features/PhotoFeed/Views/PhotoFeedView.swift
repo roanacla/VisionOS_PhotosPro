@@ -14,13 +14,15 @@ struct PhotoFeedView: View {
                     }
                     .frame(width: 100, height: 100)
                     .onAppear {
-                        viewModel.loadPhotos()
+                        if index == viewModel.photos.count - 1 {
+                            viewModel.loadPhotos()
+                        }
                     }
                 }
             }
             .searchable(text: $viewModel.searchText)
             .task(id: viewModel.searchText) {
-                viewModel.searchPhotosWithDebouncing()
+                await viewModel.searchPhotosWithDebouncing()
             }
         }
         .task {
