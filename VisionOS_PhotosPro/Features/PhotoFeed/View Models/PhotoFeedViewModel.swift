@@ -29,19 +29,17 @@ class PhotoFeedViewModel {
             analyticsService.log(event: "Search \(searchText)")
             page = 1
             photos = []
-            loadPhotos()
+            await loadPhotos()
         } catch { }
     }
     
-    func loadPhotos() {
-        Task {
-            if searchText.isEmpty {
-                endPoint = Endpoint.photos(page: page)
-                await fetchPhotos()
-            } else {
-                endPoint = Endpoint.search(query: searchText, page: page)
-                await fetchPhotos()
-            }
+    func loadPhotos() async {
+        if searchText.isEmpty {
+            endPoint = Endpoint.photos(page: page)
+            await fetchPhotos()
+        } else {
+            endPoint = Endpoint.search(query: searchText, page: page)
+            await fetchPhotos()
         }
     }
     

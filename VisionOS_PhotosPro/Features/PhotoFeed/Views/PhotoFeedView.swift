@@ -15,8 +15,10 @@ struct PhotoFeedView: View {
                         }
                         .frame(width: 100, height: 100)
                         .onAppear {
-                            if index == viewModel.photos.count - 1 {
-                                viewModel.loadPhotos()
+                            Task {
+                                if index == viewModel.photos.count - 1 {
+                                    await viewModel.loadPhotos()
+                                }
                             }
                         }
                     }
@@ -27,13 +29,13 @@ struct PhotoFeedView: View {
                 }
             }
             .task {
-                viewModel.loadPhotos()
-            }            
+                await viewModel.loadPhotos()
+            }
         }
     }
 }
 
 #Preview {
-    let container = AppDependencyContainer()
+    let container = AppDependencyContainer.mock
     PhotoFeedView(viewModel: container.makePhotoFeedViewModel() )
 }

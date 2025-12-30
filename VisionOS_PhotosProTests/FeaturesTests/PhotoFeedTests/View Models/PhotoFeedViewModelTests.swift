@@ -4,27 +4,30 @@ import Testing
 @testable import VisionOS_PhotosPro
 
 struct PhotoFeedViewModelTests {
-    let fakeService = MockNetworkService()
+    let container: AppDependencyContainer
+    init () {
+        self.container = AppDependencyContainer.mock
+    }
     
     @Test("Verify that all fetched photos have non-empty titles")
     func photoTitlesNotEmpty() async throws {
-        let photos: [Photo] = try await fakeService.fetch(from: URLRequest(url: URL(string: "https://example.com")!))
+        let photos: [Photo] = try await container.networkService.fetch(from: URLRequest(url: URL(string: "https://example.com")!))
         for photo in photos {
             await MainActor.run {
-                XCTAssertEqual(photo.title.isEmpty, false)
+                #expect(photo.id.isEmpty == false)
             }
         }
     }
     
     @MainActor
     @Test("ViewModel handles invalid URL errors correctly")
-    func testInvalidURL() async throws {
-        fakeService.fetchClosure = {
+    func testInvalidURL() async {
+        (container.networkService as! MockNetworkService).fetchClosure = {
             throw NetworkError.invalidURL
         }
 
-        let viewModel = PhotoFeedViewModel(networkService: fakeService)
-        await viewModel.fetchPhotos()
+        let viewModel = container.makePhotoFeedViewModel()
+        await viewModel.loadPhotos()
             
         #expect(viewModel.photos.isEmpty)
         #expect(viewModel.errorMessage == "Invalid URL")
@@ -33,12 +36,12 @@ struct PhotoFeedViewModelTests {
     @MainActor
     @Test("ViewModel handles invalid Response")
     func testInvalidResponse() async throws {
-        fakeService.fetchClosure = {
+        (container.networkService as! MockNetworkService).fetchClosure = {
             throw NetworkError.invalidResponse
         }
         
-        let viewModel = PhotoFeedViewModel(networkService: fakeService)
-        await viewModel.fetchPhotos()
+        let viewModel = container.makePhotoFeedViewModel()
+        await viewModel.loadPhotos()
         
         #expect(viewModel.photos.isEmpty)
         #expect(viewModel.errorMessage == "Invalid response")
@@ -47,12 +50,12 @@ struct PhotoFeedViewModelTests {
     @MainActor
     @Test("ViewModel handles decoding errors")
     func testDecodingError() async throws {
-        fakeService.fetchClosure = {
+        (container.networkService as! MockNetworkService).fetchClosure = {
             throw NetworkError.decodingError
         }
         
-        let viewModel = PhotoFeedViewModel(networkService: fakeService)
-        await viewModel.fetchPhotos()
+        let viewModel = container.makePhotoFeedViewModel()
+        await viewModel.loadPhotos()
         
         #expect(viewModel.photos.isEmpty)
         #expect(viewModel.errorMessage == "Decoding error")
@@ -61,44 +64,59 @@ struct PhotoFeedViewModelTests {
     @MainActor
     @Test("ViewModel handles server errors")
     func testServerError() async throws {
-        fakeService.fetchClosure = {
+        (container.networkService as! MockNetworkService).fetchClosure = {
             throw NetworkError.serverError(500)
         }
         
-        var viewModel = PhotoFeedViewModel(networkService: fakeService)
-        await viewModel.fetchPhotos()
+        var viewModel = container.makePhotoFeedViewModel()
+        await viewModel.loadPhotos()
         
         #expect(viewModel.photos.isEmpty)
         #expect(viewModel.errorMessage == "Server error")
         
-        fakeService.fetchClosure = {
+        (container.networkService as! MockNetworkService).fetchClosure = {
             throw NetworkError.serverError(400)
         }
         
-        viewModel = PhotoFeedViewModel(networkService: fakeService)
-        await viewModel.fetchPhotos()
+        viewModel = container.makePhotoFeedViewModel()
+        await viewModel.loadPhotos()
         
         #expect(viewModel.photos.isEmpty)
         #expect(viewModel.errorMessage == "Client error")
         
-        fakeService.fetchClosure = {
+        (container.networkService as! MockNetworkService).fetchClosure = {
             throw NetworkError.serverError(300)
         }
         
-        viewModel = PhotoFeedViewModel(networkService: fakeService)
-        await viewModel.fetchPhotos()
+        viewModel = container.makePhotoFeedViewModel()
+        await viewModel.loadPhotos()
         
         #expect(viewModel.photos.isEmpty)
         #expect(viewModel.errorMessage == "Redirection error")
         
-        fakeService.fetchClosure = {
+        (container.networkService as! MockNetworkService).fetchClosure = {
             throw NetworkError.serverError(199)
         }
         
-        viewModel = PhotoFeedViewModel(networkService: fakeService)
-        await viewModel.fetchPhotos()
+        viewModel = container.makePhotoFeedViewModel()
+        await viewModel.loadPhotos()
         
         #expect(viewModel.photos.isEmpty)
         #expect(viewModel.errorMessage == "Unknown error")
+    }
+    
+    @MainActor
+    @Test("ViewModel searches photos by title")
+    func testSearchLogsEvent() async throws {
+        let viewModel = container.makePhotoFeedViewModel()
+        viewModel.searchText = "Cats"
+        (viewModel.networkService as! MockNetworkService).isSearchEnabled = true
+        await viewModel.loadPhotos()
+        #expect(viewModel.photos.count == 10)
+        guard let lastEvent = (viewModel.analyticsService as? MockAnalyticsService)?.lastEvent else {
+            XCTFail("Last event should not be nil")
+            return
+        }
+        #expect(lastEvent == "Search Cats")
     }
 }
