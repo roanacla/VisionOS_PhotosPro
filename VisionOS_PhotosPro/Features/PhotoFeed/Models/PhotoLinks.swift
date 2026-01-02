@@ -1,6 +1,6 @@
 import Foundation
 
-struct PhotoLinks: Codable {
+struct PhotoLinks: Codable, Hashable {
     let selfLink: String
     let html: String
     let download: String

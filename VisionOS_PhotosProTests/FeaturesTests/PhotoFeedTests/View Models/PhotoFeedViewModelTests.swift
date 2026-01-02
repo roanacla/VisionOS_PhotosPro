@@ -111,7 +111,7 @@ struct PhotoFeedViewModelTests {
         let viewModel = container.makePhotoFeedViewModel()
         viewModel.searchText = "Cats"
         (viewModel.networkService as! MockNetworkService).isSearchEnabled = true
-        await viewModel.loadPhotos()
+        await viewModel.searchPhotosWithDebouncing()
         #expect(viewModel.photos.count == 10)
         guard let lastEvent = (viewModel.analyticsService as? MockAnalyticsService)?.lastEvent else {
             XCTFail("Last event should not be nil")

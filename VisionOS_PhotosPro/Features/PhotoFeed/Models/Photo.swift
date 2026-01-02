@@ -1,6 +1,6 @@
 import Foundation
 
-struct Photo: Codable, Identifiable {
+struct Photo: Codable, Identifiable, Hashable {
     let id: String
     let createdAt: String
     let updatedAt: String

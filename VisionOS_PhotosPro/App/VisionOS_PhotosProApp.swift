@@ -2,10 +2,17 @@ import SwiftUI
 
 @main
 struct VisionOS_PhotosProApp: App {
-    let container = AppDependencyContainer()
+    // 1. Long-lived Dependency Container
+    @State var container = AppDependencyContainer()
+    
     var body: some Scene {
         WindowGroup {
-            PhotoFeedView(viewModel: container.makePhotoFeedViewModel())
+            NavigationStack(path: $container.navigationRouter.path) {
+                PhotoFeedView(viewModel: container.makePhotoFeedViewModel(router: container.navigationRouter))
+                    .navigationDestination(for: AppDestination.self) { destination in
+                        container.makeDestinationView(for: destination)
+                    }
+            }
         }
     }
 }

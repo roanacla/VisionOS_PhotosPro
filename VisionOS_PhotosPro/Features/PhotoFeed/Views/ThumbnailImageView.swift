@@ -1,7 +1,7 @@
 import SwiftUI
 import UIKit
 
-struct RemoteImageView: View {
+struct ThumbnailImageView: View {
     @State var viewModel: RemoteImageViewModel
     
     init(viewModel: RemoteImageViewModel) {
@@ -18,6 +18,7 @@ struct RemoteImageView: View {
                 ProgressView()
             }
         }
+        .frame(width: 100, height: 100)
         .task {
             await viewModel.fetchImage()
         }

@@ -10,10 +10,11 @@ struct PhotoFeedView: View {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(Array(viewModel.photos.enumerated()), id: \.element.id) { index, photo in
-                        Group {
-                            RemoteImageView(viewModel: viewModel.makeRemoteImageViewModel(photo.urls.thumb))
+                        Button {
+                            viewModel.navigationRouter.navigate(to: .detail(photo))
+                        } label: {
+                            ThumbnailImageView(viewModel: viewModel.makeRemoteImageViewModel(photo.urls.thumb))
                         }
-                        .frame(width: 100, height: 100)
                         .onAppear {
                             Task {
                                 if index == viewModel.photos.count - 1 {
@@ -27,15 +28,15 @@ struct PhotoFeedView: View {
                 .task(id: viewModel.searchText) {
                     await viewModel.searchPhotosWithDebouncing()
                 }
-            }
-            .task {
-                await viewModel.loadPhotos()
+                .task {
+                    await viewModel.onViewAppear()
+                }
             }
         }
     }
 }
 
-#Preview {
-    let container = AppDependencyContainer.mock
-    PhotoFeedView(viewModel: container.makePhotoFeedViewModel() )
-}
+//#Preview {
+//    let container = AppDependencyContainer.mock
+//    PhotoFeedView(viewModel: container.makePhotoFeedViewModel() )
+//}
