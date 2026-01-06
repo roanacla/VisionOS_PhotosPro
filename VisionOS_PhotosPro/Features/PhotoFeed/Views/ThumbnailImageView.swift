@@ -3,6 +3,7 @@ import UIKit
 
 struct ThumbnailImageView: View {
     @State var viewModel: RemoteImageViewModel
+    @Environment(\.displaySettings) private var settings
     
     init(viewModel: RemoteImageViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -18,7 +19,7 @@ struct ThumbnailImageView: View {
                 ProgressView()
             }
         }
-        .frame(width: 100, height: 100)
+        .frame(width: settings.density.minItemSize, height: settings.density.minItemSize)
         .task {
             await viewModel.fetchImage()
         }
