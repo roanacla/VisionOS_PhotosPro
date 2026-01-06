@@ -1,8 +1,9 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 @Observable
-class NavigationRouter {
+class NavigationRouter: NavigationRouterProtocol {
     var path: NavigationPath
     
     init() {
@@ -16,8 +17,4 @@ class NavigationRouter {
     func pop() {
         path.removeLast()
     }
-}
-
-enum AppDestination: Hashable {
-    case detail(Photo)
 }

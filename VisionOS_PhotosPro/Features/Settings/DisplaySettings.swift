@@ -1,6 +1,6 @@
 import SwiftUI
 
-//@MainActor
+@MainActor
 @Observable
 class DisplaySettings {
     enum GridDensity: String, CaseIterable, Identifiable {

@@ -8,11 +8,11 @@ final class AppDependencyContainer {
     let analyticsService: AnalyticsServiceProtocol
     var navigationRouter: NavigationRouter
     
-    init(networkService: NetworkServiceProtocol = NetworkService(), imageLoaderService: ImageLoaderServiceProtocol = ImageLoaderService.shared, analyticsService: AnalyticsServiceProtocol = AnalyticsService(), navigationRouter: NavigationRouter = NavigationRouter()) {
+    init(networkService: NetworkServiceProtocol = NetworkService(), imageLoaderService: ImageLoaderServiceProtocol = ImageLoaderService.shared, analyticsService: AnalyticsServiceProtocol = AnalyticsService()) {
         self.networkService = networkService
         self.imageLoaderService = imageLoaderService
         self.analyticsService = analyticsService
-        self.navigationRouter = navigationRouter
+        self.navigationRouter = NavigationRouter()
     }
     
     func makePhotoFeedViewModel(router: NavigationRouter) -> PhotoFeedViewModel {

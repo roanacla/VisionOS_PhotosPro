@@ -11,7 +11,7 @@ class PhotoFeedViewModel {
     var photos: [Photo] = []
     var searchText: String = ""
     var makeRemoteImageViewModel: (String) -> RemoteImageViewModel
-    var navigationRouter: NavigationRouter
+    var navigationRouter: NavigationRouterProtocol
     
     private var lastSearchText = ""
     private var page = 1
@@ -19,7 +19,7 @@ class PhotoFeedViewModel {
     private let maxPages = 10 //FIXME: Add this in a xcconfig file
     private var endPoint: Endpoint = .photos(page: 1)
     
-    init(analyticsService: AnalyticsServiceProtocol, networkService: NetworkServiceProtocol, errorMessage: String? = nil, isLoading: Bool = false, navigationRouter: NavigationRouter, makeRemoteImageViewModel: @escaping (String) -> RemoteImageViewModel) {
+    init(analyticsService: AnalyticsServiceProtocol, networkService: NetworkServiceProtocol, errorMessage: String? = nil, isLoading: Bool = false, navigationRouter: NavigationRouterProtocol, makeRemoteImageViewModel: @escaping (String) -> RemoteImageViewModel) {
         self.networkService = networkService
         self.analyticsService = analyticsService
         self.errorMessage = errorMessage
